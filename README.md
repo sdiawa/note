@@ -330,3 +330,46 @@ Cause racine : à confirmer par une analyse complémentaire du
 comportement du pool Hikari et du dimensionnement PostgreSQL.
 
 Cette distinction permet de ne pas attribuer prématurément
+
+
+
+
+
+
+
+
+Voici mon retour concernant la migration d'hier soir.
+
+Globalement, la migration s'est bien déroulée, malgré plusieurs difficultés techniques qui ont rallongé la durée de l'intervention.
+
+**Les principaux points rencontrés :**
+
+- **Terraform :** les jobs ont été particulièrement lents, notamment lors de la création, de la suppression et de la promotion des bases PostgreSQL, ainsi que de la migration de la VIP. Tous les pipelines ont néanmoins été exécutés avec succès.
+
+- **XL Release :** nous avons rencontré plusieurs blocages au niveau des étapes de vérification *Check QUAL* et *Check PROD*, nécessitant plusieurs relances manuelles pour poursuivre la migration.
+
+- **Vault :** nous avons également rencontré un problème de droits d'accès (*Access Denied*) sur le chemin Vault contenant le certificat utilisé par l'application. J'ai corrigé les permissions nécessaires, puis procédé au redéploiement de l'application.
+
+- **Durée de l'intervention :** initialement estimée à environ 2 heures, la migration s'est finalement prolongée jusqu'à 23h30 en raison de ces différents ralentissements et blocages.
+
+**Vérifications post-MEP :**
+
+Après le déploiement, plusieurs contrôles ont été effectués afin de s'assurer du bon fonctionnement de l'application sur le nouvel environnement OpenShift (ROKS) :
+
+- **Logs applicatifs :** consultation et analyse des logs pour détecter d'éventuelles erreurs au démarrage ou pendant l'exécution.
+- **Dynatrace :** vérification de la supervision applicative afin d'identifier d'éventuelles anomalies ou dégradations de performance.
+- **Appels API :** attente et surveillance des premiers appels API pour vérifier que les requêtes sont correctement prises en charge par l'application.
+- **Stabilité applicative :** surveillance du comportement de l'application après la migration afin de s'assurer de son bon fonctionnement.
+
+**Axes d'amélioration pour les prochaines migrations :**
+
+- Analyser et optimiser les temps d'exécution des jobs Terraform.
+- Investiguer les blocages XL Release sur les étapes Check QUAL et Check PROD afin d'éviter les relances répétées.
+- Vérifier en amont les droits d'accès Vault, notamment sur les chemins contenant les certificats nécessaires aux applications.
+- Prévoir une marge supplémentaire dans l'estimation de la durée des migrations, en intégrant les vérifications post-MEP.
+
+**Bilan :**
+
+Malgré les difficultés rencontrées, la migration a été réalisée avec succès. Les premiers contrôles post-MEP sont rassurants et aucun incident particulier n'a été signalé lors des vérifications du lendemain matin.
+
+Merci encore pour la coordination et le suivi !
